@@ -2,7 +2,6 @@ package controller
 
 import (
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 
@@ -12,7 +11,7 @@ import (
 )
 
 type ResponseController interface {
-	FindAll(ctx *gin.Context) entity.Response
+	FindAll(ctx *gin.Context) (entity.Response, error)
 }
 
 type controller struct {
@@ -25,14 +24,14 @@ func New(service service.ResponseService) ResponseController {
 	}
 }
 
-func (c *controller) FindAll(ctx *gin.Context) entity.Response {
+func (c *controller) FindAll(ctx *gin.Context) (entity.Response, error) {
 	response := entity.Response{}
 	response.RequestedURL = ""
 	response.Body = "[]"
 	response.StatusCode = 200
 	name, ok := ctx.GetQuery("name")
 	if !ok {
-		return response
+		return response, nil
 	}
 
 	apiKey := os.Getenv("API_KEY")
@@ -40,12 +39,12 @@ func (c *controller) FindAll(ctx *gin.Context) entity.Response {
 
 	response = c.service.Find(url)
 	if response.RequestedURL != "" {
-		return response
+		return response, nil
 	}
 
 	resp, err := http.Get(url)
 	if err != nil {
-		log.Fatalln(err)
+		return response, err
 	}
 
 	if resp.Body != nil {
@@ -54,7 +53,7 @@ func (c *controller) FindAll(ctx *gin.Context) entity.Response {
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatalln(err)
+		return response, err
 	}
 
 	response.RequestedURL = url
@@ -62,5 +61,5 @@ func (c *controller) FindAll(ctx *gin.Context) entity.Response {
 	response.StatusCode = resp.StatusCode
 
 	c.service.Save(response)
-	return response
+	return response, nil
 }

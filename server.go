@@ -23,8 +23,15 @@ func main() {
 	setEnvVariables()
 	server := gin.Default()
 	server.GET("/breeds", func(ctx *gin.Context) {
-		response := responseController.FindAll(ctx)
-		ctx.JSON(http.StatusOK, json.RawMessage(response.Body))
+		response, err := responseController.FindAll(ctx)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"error": err,
+			})
+			ctx.Abort()
+		}
+
+		ctx.JSON(response.StatusCode, json.RawMessage(response.Body))
 	})
 
 	server.Run(":8080")
