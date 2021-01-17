@@ -1,6 +1,9 @@
 package service
 
-import "github.com/rfaelmarini/call-cat-api/entity"
+import (
+	"github.com/rfaelmarini/call-cat-api/entity"
+	"github.com/rfaelmarini/call-cat-api/repository"
+)
 
 type ResponseService interface {
 	Save(entity.Response) entity.Response
@@ -8,18 +11,19 @@ type ResponseService interface {
 }
 
 type responseService struct {
-	lastResponse entity.Response
-	responses    []entity.Response
+	lastResponse       entity.Response
+	responseRepository repository.ResponseRepository
 }
 
-func New() ResponseService {
-	responseService := responseService{}
-	return &responseService
+func New(repo repository.ResponseRepository) ResponseService {
+	return &responseService{
+		responseRepository: repo,
+	}
 }
 
 func (service *responseService) Save(response entity.Response) entity.Response {
 	service.lastResponse = response
-	service.responses = append(service.responses, response)
+	service.responseRepository.Save(response)
 	return response
 }
 
@@ -28,13 +32,5 @@ func (service *responseService) Find(url string) entity.Response {
 		return service.lastResponse
 	}
 
-	findedResponse := entity.Response{}
-	for _, response := range service.responses {
-		if response.RequestedURL == url {
-			findedResponse = response
-			break
-		}
-	}
-
-	return findedResponse
+	return service.responseRepository.Find(url)
 }

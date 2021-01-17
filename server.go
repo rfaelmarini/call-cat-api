@@ -7,11 +7,13 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/rfaelmarini/call-cat-api/controller"
+	"github.com/rfaelmarini/call-cat-api/repository"
 	"github.com/rfaelmarini/call-cat-api/service"
 )
 
 var (
-	responseService    service.ResponseService       = service.New()
+	responseRepository repository.ResponseRepository = repository.NewResponseRepository()
+	responseService    service.ResponseService       = service.New(responseRepository)
 	responseController controller.ResponseController = controller.New(responseService)
 )
 
