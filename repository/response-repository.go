@@ -10,6 +10,7 @@ import (
 
 type ResponseRepository interface {
 	Save(response entity.Response)
+	Delete(response entity.Response)
 	Find(url string) entity.Response
 }
 
@@ -36,6 +37,10 @@ func NewResponseRepository() ResponseRepository {
 
 func (db *database) Save(response entity.Response) {
 	db.connection.Create(&response)
+}
+
+func (db *database) Delete(response entity.Response) {
+	db.connection.Where("requested_url = ?", response.RequestedURL).Delete(&response)
 }
 
 func (db *database) Find(url string) entity.Response {
