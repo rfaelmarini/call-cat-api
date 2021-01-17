@@ -2,12 +2,17 @@ package main
 
 import (
 	"encoding/json"
-	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/rfaelmarini/call-cat-api/controller"
+	"github.com/rfaelmarini/call-cat-api/service"
+)
+
+var (
+	responseService    service.ResponseService       = service.New()
+	responseController controller.ResponseController = controller.New(responseService)
 )
 
 func setEnvVariables() {
@@ -18,30 +23,8 @@ func main() {
 	setEnvVariables()
 	server := gin.Default()
 	server.GET("/breeds", func(ctx *gin.Context) {
-		name, ok := ctx.GetQuery("name")
-		if !ok {
-			ctx.JSON(http.StatusOK, []string{})
-			ctx.Abort()
-			return
-		}
-
-		apiKey := os.Getenv("API_KEY")
-		url := "https://api.thecatapi.com/v1/breeds/search?api_key=" + apiKey + "&q=" + name
-		resp, err := http.Get(url)
-		if err != nil {
-			log.Fatalln(err)
-		}
-
-		if resp.Body != nil {
-			defer resp.Body.Close()
-		}
-
-		body, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			log.Fatalln(err)
-		}
-
-		ctx.JSON(http.StatusOK, json.RawMessage(string(body)))
+		response := responseController.FindAll(ctx)
+		ctx.JSON(http.StatusOK, json.RawMessage(response.Body))
 	})
 
 	server.Run(":8080")
