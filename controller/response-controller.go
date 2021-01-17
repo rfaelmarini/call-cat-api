@@ -14,17 +14,17 @@ type ResponseController interface {
 	FindAll(ctx *gin.Context) (entity.Response, error)
 }
 
-type controller struct {
+type responseController struct {
 	service service.ResponseService
 }
 
-func New(service service.ResponseService) ResponseController {
-	return &controller{
+func NewResponseController(service service.ResponseService) ResponseController {
+	return &responseController{
 		service: service,
 	}
 }
 
-func (c *controller) FindAll(ctx *gin.Context) (entity.Response, error) {
+func (c *responseController) FindAll(ctx *gin.Context) (entity.Response, error) {
 	response := entity.Response{}
 	response.RequestedURL = ""
 	response.Body = "[]"

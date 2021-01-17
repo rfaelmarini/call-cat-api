@@ -15,7 +15,7 @@ type responseService struct {
 	responseRepository repository.ResponseRepository
 }
 
-func New(repo repository.ResponseRepository) ResponseService {
+func NewResponseService(repo repository.ResponseRepository) ResponseService {
 	return &responseService{
 		responseRepository: repo,
 	}
