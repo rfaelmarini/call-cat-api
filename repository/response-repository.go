@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"os"
+
 	"github.com/rfaelmarini/call-cat-api/entity"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -16,7 +18,11 @@ type database struct {
 }
 
 func NewResponseRepository() ResponseRepository {
-	dsn := "root@tcp(127.0.0.1:3306)/callcatapidb"
+	dbName := os.Getenv("DB_NAME")
+	dbUser := os.Getenv("DB_USER")
+	dbPassword := os.Getenv("DB_PASSWORD")
+	dbAddress := os.Getenv("DB_ADDRESS")
+	dsn := dbUser + ":" + dbPassword + "@tcp(" + dbAddress + ")/" + dbName
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic("Failed to connect database")

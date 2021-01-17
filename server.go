@@ -12,22 +12,27 @@ import (
 	"github.com/rfaelmarini/call-cat-api/service"
 )
 
-var (
-	responseRepository repository.ResponseRepository = repository.NewResponseRepository()
-	responseService    service.ResponseService       = service.NewResponseService(responseRepository)
-	responseController controller.ResponseController = controller.NewResponseController(responseService)
-	loginService       service.LoginService          = service.NewLoginService()
-	jwtService         service.JWTService            = service.JWTAuthService()
-	loginController    controller.LoginController    = controller.LoginHandler(loginService, jwtService)
-)
-
 func setEnvVariables() {
 	os.Setenv("API_KEY", "1a9c1e22-9dc7-48fa-844c-5d137e80694")
 	os.Setenv("JWT_SECRET", "1a9c1e22-9dc7-48fa-844c-5d137e80694")
+	os.Setenv("DB_NAME", "callcatapidb")
+	os.Setenv("DB_USER", "root")
+	os.Setenv("DB_PASSWORD", "")
+	os.Setenv("DB_ADDRESS", "127.0.0.1:3306")
 }
 
 func main() {
 	setEnvVariables()
+
+	var (
+		responseRepository repository.ResponseRepository = repository.NewResponseRepository()
+		responseService    service.ResponseService       = service.NewResponseService(responseRepository)
+		responseController controller.ResponseController = controller.NewResponseController(responseService)
+		loginService       service.LoginService          = service.NewLoginService()
+		jwtService         service.JWTService            = service.JWTAuthService()
+		loginController    controller.LoginController    = controller.LoginHandler(loginService, jwtService)
+	)
+
 	server := gin.Default()
 
 	server.POST("/login", func(ctx *gin.Context) {
